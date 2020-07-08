@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="elfclients" default="all" basedir=".">
+	<description>
+		elfclients ( sftpClient, ftpClient, httpClient ) build  
+	</description>
+	
+	<property name="ant.build.javac.source" value="1.8"/>
+	<property name="ant.build.javac.target" value="1.8"/>
+	
+	<property name="dir.bin" location="/home/kdy987/bin/execute-jars" />
+	
+	<property name="dir.libs" location="../libs" />
+	<property name="dir.src" location="src" />
+	<property name="dir.build" location="build" />
+	<property name="dir.dist" location="dist" />
+	
+	<property name="main-class-sftp" value="kr.co.kalpa.elf.clients.sftp.Main" />
+	<property name="main-class-ftp" value="kr.co.kalpa.elf.clients.ftp.Main" />
+	<property name="main-class-http" value="kr.co.kalpa.elf.clients.http.Main" />
+	
+	<property name="project-name-sftp" value="sftpClient" />
+	<property name="project-name-ftp" value="ftpClient" />
+	<property name="project-name-http" value="httpClient" />
+	
+	<path id="library-jars">
+		<fileset dir="${dir.libs}" includes="**/*.jar"/>
+	</path>
+	
+	<target name="clean" description="delete generated directories" >
+		<delete dir="${dir.build}" />
+		<delete dir="${dir.dist}" />
+	</target>
+	<target name="init" depends="clean" description="generate directories" >
+		<tstamp/>
+		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.build}/classes" />
+		<mkdir dir="${dir.dist}" />
+		<mkdir dir="${dir.dist}/libs" />
+	</target>
+	
+	<target name="checkout" depends="init" description="source checkout">
+	</target>
+	
+	<target name="compile-sftp" depends="checkout" description="sftp source compile" >
+		<javac srcdir="${dir.src}" destdir="${dir.build}/classes" classpathref="library-jars"
+					encoding="UTF-8" includeantruntime="false" deprecation="on" debug="on">
+			<exclude name="kr.co.kalpa.elf.clients.http/*.java" />
+		  <exclude name="kr.co.kalpa.elf.clients.ftp/*.java" />
+		</javac>
+	</target>
+
+	<target name="compile-ftp" depends="checkout" description="ftp source compile" >
+		<javac srcdir="${dir.src}" destdir="${dir.build}/classes" classpathref="library-jars"
+					encoding="UTF-8" includeantruntime="false" deprecation="on" debug="on">
+		  <exclude name="kr.co.kalpa.elf.clients.sftp/*.java" />
+			<exclude name="kr.co.kalpa.elf.clients.http/*.java" />
+		</javac>
+	</target>
+	<target name="compile-http" depends="checkout" description="http source compile" >
+		<javac srcdir="${dir.src}" destdir="${dir.build}/classes" classpathref="library-jars"
+					encoding="UTF-8" includeantruntime="false" deprecation="on" debug="on">
+		  <exclude name="kr.co.kalpa.elf.clients.sftp/*.java" />
+			<exclude name="kr.co.kalpa.elf.clients.ftp/*.java" />
+		</javac>
+	</target>
+	
+	<target name="cp-dependencies-sftp">
+		<jar jarfile="${dir.dist}/libs/dependencies-all-sftp.jar">
+			<zipgroupfileset dir="${dir.libs}">
+				<include name="commons-cli-1.4.jar" />
+				<include name="jsch-0.1.55.jar" />
+				<include name="common-io-2.6.jar" />
+			</zipgroupfileset>
+		</jar>
+	</target>
+
+	<target name="cp-dependencies-http">
+		<jar jarfile="${dir.dist}/libs/dependencies-all-http.jar">
+			<zipgroupfileset dir="${dir.libs}">
+				<include name="commons-cli-1.4.jar" />
+				<include name="commons-logging-1.2.jar" />
+				<include name="httpclient-4.5.11.jar" />
+				<include name="httpcore-4.4.13.jar" />
+				<include name="common-io-2.6.jar" />
+			</zipgroupfileset>
+		</jar>
+	</target>
+
+	<target name="cp-dependencies-ftp">
+		<jar jarfile="${dir.dist}/libs/dependencies-all-ftp.jar">
+			<zipgroupfileset dir="${dir.libs}">
+				<include name="commons-cli-1.4.jar" />
+				<include name="commons-net-3.6.jar" />
+				<include name="common-io-2.6.jar" />
+			</zipgroupfileset>
+		</jar>
+	</target>
+
+	<target name="package-sftp" depends="compile-sftp, cp-dependencies-sftp" description="packaging sftp">
+		<jar jarfile="${dir.dist}/${project-name-sftp}.jar" basedir="${dir.build}/classes">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class-sftp}" />
+			</manifest>
+			<zipfileset src="${dir.dist}/libs/dependencies-all-sftp.jar" excludes="META-INF/*.SF" />
+		</jar>
+		<copy file="${dir.dist}/${project-name-sftp}.jar" todir="${dir.bin}"/>
+	</target>
+
+	<target name="package-ftp" depends="compile-ftp, cp-dependencies-ftp" description="packaging ftp">
+		<jar jarfile="${dir.dist}/${project-name-ftp}.jar" basedir="${dir.build}/classes">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class-ftp}" />
+			</manifest>
+			<zipfileset src="${dir.dist}/libs/dependencies-all-ftp.jar" excludes="META-INF/*.SF" />
+		</jar>
+		<copy file="${dir.dist}/${project-name-ftp}.jar" todir="${dir.bin}"/>
+	</target>
+	
+	<target name="package-http" depends="compile-http, cp-dependencies-http" description="packaging http">
+		<jar jarfile="${dir.dist}/${project-name-http}.jar" basedir="${dir.build}/classes">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class-http}" />
+			</manifest>
+			<zipfileset src="${dir.dist}/libs/dependencies-all-http.jar" excludes="META-INF/*.SF" />
+		</jar>
+		<copy file="${dir.dist}/${project-name-http}.jar" todir="${dir.bin}"/>
+	</target>
+	
+	<target name="sftp" depends="package-sftp" description="sftp build" />
+	<target name="ftp" depends="package-ftp" description="ftp build" />
+	<target name="http" depends="package-http" description="http build" />
+	
+	<target name="all" depends="sftp, http, ftp" description="sftp, ftp, http Client build"/>
+	
+</project>
