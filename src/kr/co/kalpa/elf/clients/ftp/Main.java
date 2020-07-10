@@ -110,7 +110,7 @@ public class Main {
 			while(true){
 				input = cmd.getMacro();
 				if(input == null){
-					System.out.println("ftp> ");
+					System.out.print("ftp> ");
 					input = scanner.nextLine();
 				}
 				if(log.isDebug()){
@@ -142,7 +142,7 @@ public class Main {
 					}
 				}else if( cmd.name.equals("lls") || cmd.name.equals("ldir") || cmd.name.equals("lll")){  
 					if(cmd.argCount == 0){
-						display(ftp, ftp.lls(null));
+						display(ftp, ftp.lls());
 					}else {
 						display(ftp, ftp.lls(cmd.getArg(1)));
 					}
@@ -215,7 +215,13 @@ public class Main {
 	private static void display(FtpClient client, String response) {
 		if(response.startsWith("OK")){
 			if(response.length()>2){
-				System.out.println(response.substring(2));
+				String s= response.substring(2);
+				if( s.indexOf(":") > -1){
+					s = s.substring(s.indexOf(":") + 1).trim();
+					System.out.println(s);
+				}else{
+					System.out.println(response.substring(2).trim());
+				}
 			}else{
 				System.out.println(response);
 			}
