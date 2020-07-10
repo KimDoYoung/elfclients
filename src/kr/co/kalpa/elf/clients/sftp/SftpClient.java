@@ -30,7 +30,7 @@ import kr.co.kalpa.elf.utils.DebugPrinter;
 
 public class SftpClient extends Client {
 
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "0.1";
 	private Session session = null;
 	private Channel channel = null;
 	private ChannelSftp channelSftp = null;
@@ -139,8 +139,22 @@ public class SftpClient extends Client {
 				config.put("StrictHostKeyChecking",	"no");
 				session.setConfig(config);
 			}
+			if(session == null){
+				String errMsg =String.format("open failed check id: %s, host: %s, password: %s", userId, host, password); 
+				log.debug(errMsg);
+				return "NK: " + errMsg;
+			}
 			session.connect();
 			channel = session.openChannel("sftp");
+			
+			channel.connect();
+			//log.debug("channel : " + channel.toString());
+			
+			channelSftp = (ChannelSftp)channel;
+			//log.debug("channelSftp : " + channelSftp.toString());
+			if(channelSftp == null){
+				log.debug("sftp channel open fail : check id, host and password");
+			}
 			//channel.connect();
 		} catch (JSchException e) {
 			if(log.isDebug()) e.printStackTrace();
@@ -150,7 +164,7 @@ public class SftpClient extends Client {
 			}
 			throw new ClientException("NK: open fial with [" +s + "]");
 		}
-		channelSftp = (ChannelSftp)channel;
+		
 		return "OK:connected";
 	}
 	

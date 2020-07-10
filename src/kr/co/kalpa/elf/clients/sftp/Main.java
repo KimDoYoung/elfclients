@@ -97,8 +97,10 @@ public class Main {
 			CommandParser cmd = new CommandParser();
 			sftp.open();
 			scanner = new Scanner(System.in);
+			
 			System.out.println("connection to " + sftp.getUserId()+"@" + sftp.getHost() + " OK");
 			System.out.println("welcom sftpClient (exit or quit, help)");
+
 			String input = null;
 			while(true){
 				input = cmd.getMacro();
@@ -203,6 +205,10 @@ public class Main {
 		} catch(ClientException sftpEx){
 			System.out.println(sftpEx.getMessage());
 			System.exit(1);
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			System.exit(1);
+			
 		} finally{
 			if(scanner != null){
 				scanner.close();
@@ -217,7 +223,11 @@ public class Main {
 	private static void display(Client client, String response) {
 		if(response.startsWith("OK")){
 			if(response.length() > 2){
-				System.out.println(response.substring(2));
+				String ss = response.substring(2);
+				if(ss.indexOf(":") >=0) {
+					ss = ss.substring(ss.indexOf(":") + 1);
+				}
+				System.out.println(ss);
 			}else {
 				System.out.println(response);
 			}
