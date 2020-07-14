@@ -186,8 +186,8 @@ public class FtpClient extends Client {
 			boolean success = ftp.storeFile(remoteFileName, is);
 			if (success) {
 				return "OK: " + remoteFileName + " uploaded on " + ftp.printWorkingDirectory();
-			} else {
-				return "NK: upload fail";
+			} else {				
+				return "NK: upload fail " + getServerReply();
 			}
 		} catch (Exception e) {
 			if (log.isDebug())
@@ -307,26 +307,67 @@ public class FtpClient extends Client {
 	}
 	
 	public String rename(String oldName, String newName) {
-		return null;
+		try {
+			boolean b = ftp.rename(oldName, newName);
+			if(b) {
+				return "OK: rename success";
+			}else {
+				String serverReply = getServerReply();
+				return "NK: rename failed " + serverReply; 				
+			}
+		} catch (IOException e) {
+			if (log.isDebug()) e.printStackTrace();
+			return "NK: " + e.getMessage();
+		}
 	}
 	public String rm(String filePath) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			boolean b = ftp.deleteFile(filePath);
+			if(b) {
+				return "OK: removed " + filePath;
+			}else {
+				String serverReply = getServerReply();
+				return "NK: remove directory " +filePath + " is failed. " + serverReply; 				
+			}
+		} catch (IOException e) {
+			if (log.isDebug()) e.printStackTrace();
+			return "NK: " + e.getMessage();
+		}
 	}
 
 	public String rmdir(String dir) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			boolean b = ftp.removeDirectory(dir);
+			if(b) {
+				return "OK: removed " + dir;
+			}else {
+				String serverReply = getServerReply();
+				return "NK: remove directory " + dir + " is failed. " + serverReply; 				
+			}
+		} catch (IOException e) {
+			if (log.isDebug()) e.printStackTrace();
+			return "NK: " + e.getMessage();
+		}
 	}
 
 	public String mkdir(String dir) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			boolean b = ftp.makeDirectory(dir);
+			if(b) {
+				return "OK: " + dir + " is created";
+			}else {
+				String serverReply = getServerReply();
+				return "NK: create directory " + dir + " is failed. " + serverReply; 
+			}
+		} catch (IOException e) {
+			if (log.isDebug()) e.printStackTrace();
+			return "NK: " + e.getMessage();
+
+		}
 	}
 
-	public String echo(String arg) {
-		// TODO Auto-generated method stub
-		return null;
+	public String echo(String msg) {
+		return "OK: " + msg;
 	}
 
 	
@@ -405,5 +446,16 @@ public class FtpClient extends Client {
 	public int getKEEP_TIME() {
 		return KEEP_TIME;
 	}
-
+    
+	/**
+	 * 서버가 명령을 처리한 후의 반응 메세지
+	 * @return
+	 */
+	private String getServerReply() {
+        String[] replies = ftp.getReplyStrings();
+        if (replies != null && replies.length > 0) {
+        	return String.join("\n" , replies);
+        }
+        return "";
+    }
 }
